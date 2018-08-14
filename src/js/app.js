@@ -1,16 +1,25 @@
 var App = (function () {
-    var init, initPost, initWeb3, initContract, bindEvents, _get_item_callback, buyToken, bindLogs;
-    var web3Provider = null,
+    let init, initPost, initWeb3, initContract, bindEvents, loadUserCard, _get_item_callback, buyToken, bindLogs;
+    let web3Provider = null,
         contracts = {};
+
+    let is_user_on_board = false;
+
+    let purchase_item_data = [
+        {"name": "A bag of money", "price": 0.01},
+        {"name": "A bag of money", "price": 0.1},
+        {"name": "A bag of money", "price": 1},
+        {"name": "A bag of money", "price": 10},
+    ]
 
     let leaderBoardInstance;
 
     init = function() {
+        loadPurchaseItemTemp();
         loadListTemp();
         initWeb3();
         initContract();
         bindEvents();
-
     }
 
     initWeb3 = function() {
@@ -56,10 +65,12 @@ var App = (function () {
         })
     }
 
-    _display_text = function (item, text) {
-        item.slideUp("slow", function () {
-            item.text(text);
-            item.slideDown();
+    _display_text = function (idx, field, text) {
+        let item_div = $('#item-' + idx),
+            item_addr = item_div.find(".item-" + field);
+        item_addr.slideUp("slow", function () {
+            item_addr.text(text);
+            item_addr.slideDown();
         });
     }
 
@@ -77,45 +88,37 @@ var App = (function () {
             return;
         }
 
-        // console.log("addr: " + addr + " this: " + this._account)
+        console.log("addr ,acc are equal :" + (addr === web3.eth.accounts[0]));
+
         item_div.css("border-style", "");
         item_div.css("border-color", "");
 
-        // item_addr.slideUp("slow", function () {
-        //     item_addr.text(addr);
-        //     item_addr.slideDown();
-        // });
-        _display_text(item_addr, addr);
-        // item_div.find(".item-address").text(addr);
-        // listContainer.append(itemTemplate.html());
+        if (addr === web3.eth.accounts[0]) {
+            is_user_on_board = true;
+            item_div.css("border-style", "solid");
+            item_div.css("border-color", "#2f89fc");
+        }
+
+        _display_text(idx, "address", addr);
+        _getUserBal(addr, idx);
+        _getUserSlogan(addr, idx);
+    }
+
+    _getUserBal = function (addr, idx) {
         leaderBoardInstance.balanceOf.call(addr).then(function (amount) {
             amount = amount.toNumber();
-            // item_bal.slideUp("slow", function () {
-            //     item_bal.text(web3.fromWei(amount + "", "ether") + " ETH");
-            //     item_bal.slideDown();
-            // });
-            _display_text(item_bal, web3.fromWei(amount + "", "ether") + " ETH")
-
-            if (addr === web3.eth.accounts[0]) {
-                item_div.css("border-style", "solid");
-                item_div.css("border-color", "#2f89fc");
-            }
+            console.log("idx is : " + idx);
+            _display_text(idx, "balance", web3.fromWei(amount + "", "ether") + " ETH");
         });
+    }
 
+    _getUserSlogan = function (addr, idx) {
         leaderBoardInstance.sloganOf.call(addr).then(function (str) {
-            console.log("get slogan: " + b64decode(str));
             if (str) {
-                item_slogan.show();
-                _display_text(item_slogan, b64decode(str))
+                _display_text(idx, "slogan", b64decode(str));
             } else {
-                item_slogan.hide();
             }
         });
-        // postTemplate.find('.post-title').text(b64_to_utf8(post[0]));
-        // postTemplate.find('.post-content').text(b64_to_utf8(post[1]));
-        // postTemplate.find('.post-panel').attr('data-id', idx);
-        // postTemplate.find('.post-link').attr('href', '/post.html?postid='+idx);
-        // postRow.append(postTemplate.html());
     }
 
     loadListTemp = function () {
@@ -142,18 +145,59 @@ var App = (function () {
                 _get_item_callback(10-i, addr);
             });
         }
+
+        console.log(is_user_on_board);
+        if (!is_user_on_board) {
+            loadUserCard();
+        } else {
+             $('#user-acct-container').hide();
+        }
     }
 
-    $(".purchase-item").click(function () {
-        let item = $(this),
-            price = item.data("price");
+    loadUserCard = function () {
+        let container = $('#user-acct-container'),
+            item_temp = $('#item-template'),
+            addr = web3.eth.accounts[0],
+            item_div = item_temp.find(".item-div"),
+            item_addr = item_temp.find(".item-address");
+
+        item_div.attr("id", "item-" + 0);
+        item_temp.find(".item-idx").text("..");
+        item_addr.text(addr);
+        // _display_text(0, "address", addr);
+        _getUserBal(addr, 0);
+        _getUserSlogan(addr, 0);
+
+        item_div.css("border-style", "solid");
+        item_div.css("border-color", "#2f89fc");
+
+        container.html("");
+        container.show();
+        container.append("<div class='dotdotdot'></div>");
+        container.append(item_temp.html());
+    }
+
+    loadPurchaseItemTemp = function () {
+        let container = $('#purchase-item-list'),
+            item_temp = $('#purchase-item-template');
+        container.text("");
+
+        purchase_item_data.forEach(function (data) {
+            item_temp.find(".purchase-item-name").text(data["name"]);
+            item_temp.find(".purchase-item-price").text(data["price"]);
+            // item_temp.find(".purchase-item").data("price", data["price"]);
+            container.append(item_temp.html());
+        });
+    }
+
+    $(document).on("click", ".purchase-item", function () {
+        var item = $(this),
+            price = parseFloat(item.find(".purchase-item-price").text());
         buyToken(price);
     })
 
     buyToken = function (ether) {
-        console.log("bbb");
         console.log(contracts.LeaderBoard.options)
-
         console.log(leaderBoardInstance.address);
 
         var tx = web3.eth.sendTransaction({
@@ -177,6 +221,7 @@ var App = (function () {
 
         leaderBoardInstance.setSlogan(enc).then(function () {
             console.log("done..");
+            // TODO close modal;
         });
     }
 
@@ -190,16 +235,12 @@ var App = (function () {
                 loadList();
             }
         )
-    }
 
-    function toUnicode(str) {
-    	return str.split('').map(function (value, index, array) {
-    		var temp = value.charCodeAt(0).toString(16).toUpperCase();
-    		if (temp.length > 2) {
-    			return '\\u' + temp;
-    		}
-    		return value;
-    	}).join('');
+        leaderBoardInstance.contract.Slogan().watch(function(error, result){
+              if (!error)
+                loadList();
+            }
+        )
     }
 
     return {

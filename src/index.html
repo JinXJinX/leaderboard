@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>Jinx's Lambo Board</title>
+    <title>Leader Board</title>
 
     <!-- Bootstrap -->
     <link href="/css/bootstrap.min.css" rel="stylesheet">
@@ -24,13 +24,16 @@
     <main role="main" class="container my-4 col-xs-12" style="max-width:500px; font-family: 'PT Mono', monospace;">
         <div class="d-flex align-items-center p-3 my-2 text-white-50 bg-purple rounded shadow-sm">
             <!-- <img class="mr-3" src="../../assets/brand/bootstrap-outline.svg" alt="" width="48" height="48"> -->
-            <div class="lh-100 mx-auto">
-                <h3 class="mb-0 text-white lh-100">Lambo Board</h3>
-                <small>give me your Lambo money</small>
+            <div class="lh-100 mx-auto text-center">
+                <h3 class="mb-0 text-white lh-100">Leader Board</h3>
+                <small>No.1 is always the best</small>
             </div>
         </div>
 
         <div class="my-2 p-3 bg-white rounded shadow-sm" id="list-container">
+        </div>
+
+        <div class="my-2 p-3 bg-white rounded shadow-sm" id="user-acct-container" style="display: none;">
         </div>
 
         <button class="btn btn-primary btn-block" id="btn-buy-token">Buy</button>
@@ -40,7 +43,7 @@
     <div id="item-template" style="display: none;">
         <div class="pt-1 pr-2 item-div mt-1 lh-125 row" style="background-color: #ddd; background-size: 200%; ">
             <div class="" style="font-size:2rem; width:10%; min-height: 65px;">
-                <p class="text-center item-idx item-idx" >
+                <p class="text-center item-idx" >
                 @index
                 </p>
             </div>
@@ -56,11 +59,6 @@
                 <div style="min-height: 15px; font-size: 0.7rem;">
                     <p class="item-text item-address mb-0"> @addr </p>
                 </div>
-                <!-- <div style="height: 20px;">
-                    <p class="my-auto item-address front" style="font-size:1rem; min-width: 300px; overflow: hidden; text-overflow: ellipsis; ">
-                    @address
-                    </p>
-                </div> -->
             </div>
         </div>
     </div>
@@ -93,50 +91,23 @@
                     <h5 class="modal-title">Purchase</h5>
                 </div>
 
-                <div class="modal-body row">
-                    <div class="mb-4 col-md-3 col-sm-6" >
-                        <div class="mx-auto purchase-item" data-price=0.01>
-                            <img class="" alt="" src="images/treasurebox.png">
-                            <div class="bg-info text-center purchase-item-info">
-                              <p class="">A bag of money</p>
-                              <p>0.01 ETH</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-4 col-md-3 col-sm-6">
-                        <div class="mx-auto purchase-item" data-price=0.1>
-                            <img class="" alt="" src="images/treasurebox.png">
-                            <div class="bg-info text-center purchase-item-info">
-                              <p class="">A bag of money</p>
-                              <p>0.1 ETH</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-4 col-md-3 col-sm-6">
-                        <div class="mx-auto purchase-item" data-price=1>
-                            <img class="" alt="" src="images/treasurebox.png">
-                            <div class="bg-info text-center purchase-item-info">
-                              <p class="">A bag of money</p>
-                              <p>1 ETH</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-4 col-md-3 col-sm-6">
-                        <div class="purchase-item mx-auto" data-price=10>
-                            <img class="" alt="" src="images/treasurebox.png">
-                            <div class="bg-info text-center purchase-item-info" >
-                              <p class="">A bag of money</p>
-                              <p>10 ETH</p>
-                            </div>
-                        </div>
-                    </div>
+                <div class="modal-body row" id="purchase-item-list">
                 </div>
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="purchase-item-template" style="display: none;">
+        <div class="mb-4 col-3">
+            <div class="purchase-item">
+                <img class="purchase-item-img" alt="" src="images/treasurebox.png">
+                <div class="bg-info text-center purchase-item-info">
+                  <p class="purchase-item-name">A bag of money</p>
+                  <p><span class="purchase-item-price">$$</span> ETH</p>
                 </div>
             </div>
         </div>

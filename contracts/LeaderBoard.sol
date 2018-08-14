@@ -2,7 +2,7 @@
 Implements EIP20 token standard: https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md
 .*/
 
-pragma solidity ^0.4.24;
+pragma solidity 0.4.24;
 
 import './SafeMath.sol';
 
@@ -82,6 +82,7 @@ contract LeaderBoard {
       */
     function setSlogan(string str) public NotPaused {
         require(bytes(str).length < 120);
+        emit Slogan();
         slogans[msg.sender] = str;
     }
 
@@ -161,6 +162,7 @@ contract LeaderBoard {
      */
     event Purchase(address indexed _owner, uint256 _value);
     event Withdraw(address indexed _owner, uint256 _value);
+    event Slogan();
     event Pause();
     event Unpause();
 
