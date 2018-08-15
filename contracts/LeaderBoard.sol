@@ -1,14 +1,9 @@
-/*
-Implements EIP20 token standard: https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md
-.*/
-
 pragma solidity 0.4.24;
 
 import './SafeMath.sol';
 
 /** @title Leader Board. */
 contract LeaderBoard {
-
     bool public paused = false;
     mapping (address => uint256) balances;
     mapping (address => string) slogans;
@@ -71,7 +66,7 @@ contract LeaderBoard {
       */
     function () public payable NotPaused {
         require(msg.value > 0);
-        emit Purchase(msg.sender, msg.value);
+        emit LogPurchase(msg.sender, msg.value);
         balances[msg.sender] = SafeMath.add(balances[msg.sender], msg.value);  // convert
         updateBoard();
     }
@@ -82,7 +77,7 @@ contract LeaderBoard {
       */
     function setSlogan(string str) public NotPaused {
         require(bytes(str).length < 120);
-        emit Slogan();
+        emit LogSlogan();
         slogans[msg.sender] = str;
     }
 
@@ -118,7 +113,7 @@ contract LeaderBoard {
       */
     function withdraw(uint _amount) public OnlyManager returns(bool) {
         //require(address(this).balance >= _amount);
-        emit Withdraw(msg.sender, _amount);
+        emit LogWithdraw(msg.sender, _amount);
         Manager.transfer(_amount);
         return true;
     }
@@ -146,7 +141,7 @@ contract LeaderBoard {
      */
     function pause() public OnlyManager NotPaused {
         paused = true;
-        emit Pause();
+        emit LogPause();
     }
 
     /**
@@ -154,23 +149,17 @@ contract LeaderBoard {
      */
     function unpause() public OnlyManager Paused {
         paused = false;
-        emit Unpause();
+        emit LogUnpause();
     }
 
     /**
      * @dev events
      */
-    event Purchase(address indexed _owner, uint256 _value);
-    event Withdraw(address indexed _owner, uint256 _value);
-    event Slogan();
-    event Pause();
-    event Unpause();
-
-    // modifier
-    modifier EnoughToken (address _addr, uint _value) {
-        require(balances[_addr] >= _value);
-        _;
-    }
+    event LogPurchase(address indexed _owner, uint256 _value);
+    event LogWithdraw(address indexed _owner, uint256 _value);
+    event LogSlogan();
+    event LogPause();
+    event LogUnpause();
 
     /**
       * @dev restricting access design pattern

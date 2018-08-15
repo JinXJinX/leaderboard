@@ -6,10 +6,10 @@ var App = (function () {
     let is_user_on_board = false;
 
     let purchase_item_data = [
-        {"name": "A bag of money", "price": 0.01},
-        {"name": "A bag of money", "price": 0.1},
-        {"name": "A bag of money", "price": 1},
-        {"name": "A bag of money", "price": 10},
+        {"name": "Coin", "price": 0.01},
+        {"name": "Small bag of money", "price": 0.1},
+        {"name": "Bag of money", "price": 1},
+        {"name": "Trea$ure box", "price": 10},
     ]
 
     let leaderBoardInstance;
@@ -41,12 +41,10 @@ var App = (function () {
 
             // Set the provider for our contract
             contracts.LeaderBoard.setProvider(web3Provider);
-
             contracts.LeaderBoard.deployed().then(function(instance) {
                 leaderBoardInstance = instance;
                 console.log(leaderBoardInstance.address);
                 bindLogs();
-
                 // Use our contract to retrieve and mark the adopted pets
                 loadList();
             });
@@ -75,21 +73,17 @@ var App = (function () {
     }
 
     _get_item_callback = function (idx, addr) {
-        // var listContainer = $('#list-container');
-        // var itemTemplate = $('#item-template');
         let item_div = $('#item-' + idx),
             item_addr = item_div.find(".item-address"),
             item_slogan = item_div.find(".item-slogan"),
             item_bal = item_div.find(".item-balance");
 
         if (addr === "0x0000000000000000000000000000000000000000") {
-            // itemTemplate.find(".item-address").text("???");
-            // listContainer.append(itemTemplate.html());
+            // skip empty slot
             return;
         }
 
-        console.log("addr ,acc are equal :" + (addr === web3.eth.accounts[0]));
-
+        // reset border
         item_div.css("border-style", "");
         item_div.css("border-color", "");
 
@@ -107,17 +101,13 @@ var App = (function () {
     _getUserBal = function (addr, idx) {
         leaderBoardInstance.balanceOf.call(addr).then(function (amount) {
             amount = amount.toNumber();
-            console.log("idx is : " + idx);
             _display_text(idx, "balance", web3.fromWei(amount + "", "ether") + " ETH");
         });
     }
 
     _getUserSlogan = function (addr, idx) {
         leaderBoardInstance.sloganOf.call(addr).then(function (str) {
-            if (str) {
-                _display_text(idx, "slogan", b64decode(str));
-            } else {
-            }
+            _display_text(idx, "slogan", b64decode(str));
         });
     }
 
@@ -140,18 +130,20 @@ var App = (function () {
     }
 
     loadList = function() {
+        let lst = [];
         for (let i = 9; i > -1 ; i--) {
-            leaderBoardInstance.board.call(i).then(function (addr) {
+            lst.push(leaderBoardInstance.board.call(i).then(function (addr) {
                 _get_item_callback(10-i, addr);
-            });
+            }));
         }
 
-        console.log(is_user_on_board);
-        if (!is_user_on_board) {
-            loadUserCard();
-        } else {
-             $('#user-acct-container').hide();
-        }
+        Promise.all(lst).then(function() {
+            if (!is_user_on_board) {
+                loadUserCard();
+            } else {
+                 $('#user-acct-container').hide();
+            }
+        })
     }
 
     loadUserCard = function () {
@@ -164,7 +156,6 @@ var App = (function () {
         item_div.attr("id", "item-" + 0);
         item_temp.find(".item-idx").text("..");
         item_addr.text(addr);
-        // _display_text(0, "address", addr);
         _getUserBal(addr, 0);
         _getUserSlogan(addr, 0);
 
@@ -185,7 +176,6 @@ var App = (function () {
         purchase_item_data.forEach(function (data) {
             item_temp.find(".purchase-item-name").text(data["name"]);
             item_temp.find(".purchase-item-price").text(data["price"]);
-            // item_temp.find(".purchase-item").data("price", data["price"]);
             container.append(item_temp.html());
         });
     }
@@ -197,9 +187,6 @@ var App = (function () {
     })
 
     buyToken = function (ether) {
-        console.log(contracts.LeaderBoard.options)
-        console.log(leaderBoardInstance.address);
-
         var tx = web3.eth.sendTransaction({
                 from: this._account,
                 to: leaderBoardInstance.address,
@@ -220,25 +207,27 @@ var App = (function () {
         console.log(enc.length);
 
         leaderBoardInstance.setSlogan(enc).then(function () {
-            console.log("done..");
-            // TODO close modal;
+            // close modal;
+            $("#slogan-modal").modal("hide");
         });
     }
 
     bindLogs = function () {
         // update board when new purchase happended
         leaderBoardInstance.contract.Purchase().watch(function(error, result){
-              if (!error)
-                console.log(result);
-                console.log("addr: " + result.args._owner);
-                console.log("value: " + result.args._value.toNumber());
-                loadList();
+                if (!error) {
+                    console.log(result);
+                    console.log("addr: " + result.args._owner);
+                    console.log("value: " + result.args._value.toNumber());
+                    loadList();
+                }
             }
         )
-
+        // update board when slogan edited
         leaderBoardInstance.contract.Slogan().watch(function(error, result){
-              if (!error)
-                loadList();
+                if (!error) {
+                    loadList();
+                }
             }
         )
     }

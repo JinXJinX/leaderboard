@@ -108,14 +108,14 @@ contract('LeaderBoard', function(accounts) {
     it("test event log", async() => {
         const lb = await LeaderBoard.deployed()
         let eventEmitted = false
-        await lb.Purchase().watch((err, res) => {
+        await lb.LogPurchase().watch((err, res) => {
             eventEmitted = true
         })
         await lb.sendTransaction({value: eth1, from: cindy})
         assert.equal(eventEmitted, true, 'Emit a purchase event')
 
         eventEmitted = false
-        await lb.Pause().watch((err, res) => {
+        await lb.LogPause().watch((err, res) => {
             eventEmitted = true
         })
         await lb.pause({from: manager})
