@@ -12,10 +12,15 @@ The higher the ranking, the stronger you are.
 
 ## 2. How to set it up
 
-* ```git clone https://github.com/JinXJinX/leaderboard.git```
-* open Ganache. set "RPC SERVER" to  HTTP://127.0.0.1:8545 (this is default)
+### set up environment
+
+* open Ganache. make sure "RPC SERVER" is "HTTP://127.0.0.1:8545" (default)
+* open MetaMask. Change network to custom rpc "HTTP://127.0.0.1:8545"
+
+### run code
+* download project ```git clone https://github.com/JinXJinX/leaderboard.git```
 * ```cd leaderboard```
-* ```truffle compile```
+* compile ```truffle compile```
 * ```truffle migrate```
 * ```npm run dev```
 * open http://localhost:3000/
