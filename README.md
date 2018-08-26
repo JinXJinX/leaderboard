@@ -29,5 +29,5 @@ The higher the ranking, the stronger you are.
 
  Documents are located in ```doc``` folder
 
-* doc/design_pattern_desicions.md
-* doc/avoiding_common_attacks.md
+* [doc/design_pattern_desicions.md](https://github.com/JinXJinX/leaderboard/blob/master/doc/design_pattern_desicions.md)
+* [doc/avoiding_common_attacks.md](https://github.com/JinXJinX/leaderboard/blob/master/doc/avoiding_common_attacks.md)
