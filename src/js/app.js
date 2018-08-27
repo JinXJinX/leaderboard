@@ -214,7 +214,7 @@ var App = (function () {
 
     bindLogs = function () {
         // update board when new purchase happended
-        leaderBoardInstance.contract.Purchase().watch(function(error, result){
+        leaderBoardInstance.contract.LogPurchase().watch(function(error, result){
                 if (!error) {
                     console.log(result);
                     console.log("addr: " + result.args._owner);
@@ -224,7 +224,7 @@ var App = (function () {
             }
         )
         // update board when slogan edited
-        leaderBoardInstance.contract.Slogan().watch(function(error, result){
+        leaderBoardInstance.contract.LogSlogan().watch(function(error, result){
                 if (!error) {
                     loadList();
                 }
